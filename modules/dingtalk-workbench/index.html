@@ -10,5 +10,5 @@
   </div>
 </section>
 <section class="card"><div class="row"><h2>通知预览</h2><span id="campaignState"></span></div><div id="campaign"><p>导入课表并生成预览后，在这里核对内容。</p></div></section>
-<section class="card"><h2>桌面消息收集</h2><p>打开钉钉中的目标聊天，输入聊天顶部显示的准确名称，再读取当前可见消息。第一次使用需要 macOS 辅助功能权限。私聊与群聊分别保存。</p><div class="row"><input id="conversationName" placeholder="当前聊天名称"><button id="capture">读取当前窗口</button></div><p id="captureResult"></p><div id="conversations"></div></section>
+<section class="card"><h2>桌面消息收集</h2><p>打开钉钉中的目标聊天，输入聊天顶部显示的准确名称，再读取当前可见消息。第一次使用需要 macOS 辅助功能权限。私聊与群聊分别保存。</p><div class="row"><input id="conversationName" placeholder="当前聊天名称"><button id="capture">读取当前窗口</button></div><label>保持工作台打开时，每 15 秒读取这个会话的当前可见文字 <input type="checkbox" id="autoCapture"></label><p id="captureResult"></p><div id="conversations"></div></section>
 </main><script type="module" src="/app.js"></script></body></html>

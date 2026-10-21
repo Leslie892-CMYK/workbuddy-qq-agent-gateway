@@ -62,8 +62,8 @@ function renderCampaign(){
   const missing=campaign.lessons.filter(x=>!x.room&&!x.location||!x.className).length;
   $("campaign").innerHTML=`${changes}${missing?`<p class="notice">${missing} 条课程缺少班级或地点，请确认原表。</p>`:""}
     <p class="meta">来源：${escape(campaign.sourceName)} · ${campaign.lessons.length} 节课 · ${campaign.personalDrafts.length} 位老师 · 排除个人通知：${escape(campaign.excludedTeachers.join("、"))}</p>
-    <h3>群内通知草稿</h3><div class="draft">${escape(campaign.group.text)}</div>
-    <h3 style="margin-top:18px">逐位通知草稿</h3>${campaign.personalDrafts.map(d=>`<div class="teacher"><strong>${escape(d.teacher)}</strong><div class="draft">${escape(d.text)}</div><label>次日已读核对<select data-read-teacher="${escape(d.teacher)}"><option value="">待核对</option><option value="read" ${campaign.readChecks.find(x=>x.teacher===d.teacher)?.status==="read"?"selected":""}>已读</option><option value="unread" ${campaign.readChecks.find(x=>x.teacher===d.teacher)?.status==="unread"?"selected":""}>未读，需语音或电话联系</option><option value="contacted" ${campaign.readChecks.find(x=>x.teacher===d.teacher)?.status==="contacted"?"selected":""}>已人工联系</option></select></label></div>`).join("")}
+    <h3>群内通知草稿</h3><div class="draft">${escape(campaign.group.text)}</div><button class="secondary" data-copy="group" ${campaign.approvedFingerprint!==campaign.fingerprint?"disabled":""}>复制已批准的群通知</button>
+    <h3 style="margin-top:18px">逐位通知草稿</h3>${campaign.personalDrafts.map((d,i)=>`<div class="teacher"><strong>${escape(d.teacher)}</strong><div class="draft">${escape(d.text)}</div><button class="secondary" data-copy="${i}" ${campaign.approvedFingerprint!==campaign.fingerprint?"disabled":""}>复制已批准的个人通知</button><label>次日已读核对<select data-read-teacher="${escape(d.teacher)}"><option value="">待核对</option><option value="read" ${campaign.readChecks.find(x=>x.teacher===d.teacher)?.status==="read"?"selected":""}>已读</option><option value="unread" ${campaign.readChecks.find(x=>x.teacher===d.teacher)?.status==="unread"?"selected":""}>未读，需语音或电话联系</option><option value="contacted" ${campaign.readChecks.find(x=>x.teacher===d.teacher)?.status==="contacted"?"selected":""}>已人工联系</option></select></label></div>`).join("")}
     <div class="row" style="margin-top:18px"><button id="approve" ${missing||campaign.approvedFingerprint===campaign.fingerprint?"disabled":""}>批准这批草稿</button><button id="review" class="secondary">让 WorkBuddy 复核</button><button id="roster" class="secondary">下载授课名单图片</button><button id="calendar" class="secondary">下载周一、周二日历提醒</button></div>
     ${campaign.agentReview?.fingerprint===campaign.fingerprint?`<h3 style="margin-top:18px">智能体复核意见</h3><div class="draft">${escape(campaign.agentReview.text)}</div>`:""}
     <p class="meta">批准仅保存审核记录，不会向钉钉发送消息。发送前还需在钉钉中核对实际收件人和内容。</p>`;
@@ -72,6 +72,12 @@ function renderCampaign(){
   $("campaign").querySelectorAll("select[data-read-teacher]").forEach(select=>select.onchange=async()=>{
     if(!select.value)return;
     try{await api(`/api/campaigns/${campaign.id}/read-check`,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({teacher:select.dataset.readTeacher,status:select.value})});message("已读核对已保存",true);}catch(e){message(e.message);}
+  });
+  $("campaign").querySelectorAll("button[data-copy]").forEach(button=>button.onclick=async()=>{
+    const target=button.dataset.copy;
+    const text=target==="group"?campaign.group.text:campaign.personalDrafts[Number(target)]?.text;
+    if(!text||campaign.approvedFingerprint!==campaign.fingerprint)return;
+    try{await navigator.clipboard.writeText(text);message("已复制，请在钉钉核对收件人后手动发送",true);}catch(e){message(`复制失败：${e.message}`);}
   });
   $("roster").onclick=()=>downloadRoster(campaign);
   $("calendar").onclick=async()=>{try{const file=await api(`/api/campaigns/${campaign.id}/calendar`);const link=document.createElement("a");link.href=URL.createObjectURL(file);link.download="授课通知提醒.ics";link.click();setTimeout(()=>URL.revokeObjectURL(link.href),1000);}catch(e){message(e.message);}};
@@ -90,13 +96,15 @@ function downloadRoster(batch){
     [row.date,row.time,row.course,row.className,row.teacher,row.room||row.location].forEach((value,j)=>ctx.fillText(String(value||"—").slice(0,j===2?18:14),x[j],y));});
   const link=document.createElement("a");link.href=canvas.toDataURL("image/png");link.download="授课名单.png";link.click();
 }
-$("capture").onclick=async()=>{
+async function captureCurrent(){
   try{const name=$("conversationName").value.trim();if(!name)throw new Error("请输入当前聊天名称");
     const result=await api("/api/capture",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name})});
     $("captureResult").textContent=`读取 ${result.visibleCount} 条可见文字，新增 ${result.added} 条。`;
     await refresh();
   }catch(error){$("captureResult").textContent=error.message;message(error.message);}
-};
+}
+$("capture").onclick=captureCurrent;
+setInterval(()=>{if($("autoCapture").checked&&$("conversationName").value.trim())captureCurrent();},15000);
 function renderConversations(){
   const chats=Object.values(state.conversations||{});
   $("conversations").innerHTML=chats.length?chats.map(chat=>`<article><div class="row"><strong>${escape(chat.id)}</strong><span class="meta">${chat.messages.length} 条记录</span><select data-chat="${escape(chat.id)}" data-type><option value="group" ${chat.type==="group"?"selected":""}>群聊</option><option value="private" ${chat.type==="private"?"selected":""}>私聊</option></select></div>
