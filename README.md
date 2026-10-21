@@ -2,6 +2,8 @@
 
 这是为 WorkBuddy 定制的 QQ Agent 网关，不是通用聊天机器人，也不是以 Codex 为主的接入器。把本机 WorkBuddy Agent 接入 QQ，群聊、私聊默认拥有独立持久会话，也可明确选择让私聊共享某个群的模型上下文；在网页里查看实时输出、调整模型与权限、管理通知订阅和表情包。
 
+另有独立的[钉钉本机工作台](docs/dingtalk-workbench.md)：不需要组织授权，可导入授课课表、生成并审核通知草稿、下载每周提醒、按需读取当前钉钉聊天的可见文字。它不会改变 QQ 网关的配置或发送链路。
+
 本仓库独立发布，不是 GitHub fork。代码基于 [Epic0522/Codex-Remote-Contact](https://github.com/Epic0522/Codex-Remote-Contact) 扩展，默认引擎、MCP 工具、持久会话、权限与部署流程均围绕 WorkBuddy 设计；Codex 适配仅作为兼容路径保留，不代表两者功能完全一致。上游尚未声明许可证：公开源码不等同于已取得完整开源许可。见 [来源清单](docs/PROVENANCE.md) 和 [许可证说明](LICENSE-NOTICE.md)。
 
 ## 页面展示

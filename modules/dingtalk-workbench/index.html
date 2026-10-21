@@ -1,0 +1,14 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WorkBuddy 钉钉工作台</title><link rel="stylesheet" href="/style.css"></head><body>
+<header><div><strong>WorkBuddy · 钉钉工作台</strong><small>本机运行 · 无需组织授权</small></div><span id="status">正在连接</span></header>
+<main>
+<section class="card"><h2>运行状态</h2><div id="health">正在检查本机服务…</div></section>
+<section class="card"><h1>授课通知</h1><p>依据《超声教研室 授课通知 SOP》：提前一周整理、群内通知、逐位提醒、次日核对已读、调课重审。</p>
+  <label>1. 导入“全部”工作表的 XLSX 文件<input type="file" id="xlsx" accept=".xlsx"></label><div id="sheet"></div>
+  <div id="mapping" hidden><h2>2. 对应表格列</h2><div id="columnMap" class="grid"></div>
+    <div class="grid"><label>周次筛选<input id="week" placeholder="例：第7周；留空=全部"></label><label>校区筛选<input id="campus" placeholder="例：滨江校区；留空=全部"></label><label>排除个人通知的教师<input id="skip" placeholder="填入无需逐位通知的教师"></label></div>
+    <button id="create">生成通知预览</button>
+  </div>
+</section>
+<section class="card"><div class="row"><h2>通知预览</h2><span id="campaignState"></span></div><div id="campaign"><p>导入课表并生成预览后，在这里核对内容。</p></div></section>
+<section class="card"><h2>桌面消息收集</h2><p>打开钉钉中的目标聊天，输入聊天顶部显示的准确名称，再读取当前可见消息。第一次使用需要 macOS 辅助功能权限。私聊与群聊分别保存。</p><div class="row"><input id="conversationName" placeholder="当前聊天名称"><button id="capture">读取当前窗口</button></div><p id="captureResult"></p><div id="conversations"></div></section>
+</main><script type="module" src="/app.js"></script></body></html>
