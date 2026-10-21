@@ -101,6 +101,7 @@ export class WorkBuddyClient {
     model,
     effort,
     systemPrompt = "",
+    enableQqMcp = true,
     timeoutMs = 10 * 60 * 1000,
     idleTimeoutMs = 3 * 60 * 1000,
     compactionTimeoutMs = 6 * 60 * 1000,
@@ -138,7 +139,7 @@ export class WorkBuddyClient {
     this.mcpSecret = randomBytes(32).toString("hex");
     this.mcpGateway = null;
     this.mcpEndpoint = null;
-    this.supportsQqMcp = true;
+    this.supportsQqMcp = Boolean(enableQqMcp);
     this.supportsSystemPrompt = true;
   }
 
@@ -268,7 +269,7 @@ export class WorkBuddyClient {
   }
 
   async startProcess() {
-    await this.ensureMcpGateway();
+    if (this.supportsQqMcp) await this.ensureMcpGateway();
     this.buffer = "";
     this.stderr = "";
     this.initialized = false;
